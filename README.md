@@ -6,5 +6,5 @@ get your CV for Brawl Stars easily
 
 # File size: [118 MB]
 # How to use:
-double click BrawlCV.exe on Windows
-run BrawlCV.exe with Wine on Mac OS 
+double click BrawlCV.exe on Windows <br />
+run BrawlCV.exe with Wine on Mac OS <br />
