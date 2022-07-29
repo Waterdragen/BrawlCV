@@ -810,6 +810,7 @@ def gui():
         f.close()
     response = requests.get("https://api.github.com/repos/Waterdragen/BrawlCV/releases/latest")
     version_latest = response.json()['tag_name']
+    version_desc = response.json()['body']
     if VERSION != version_latest:
         show_canvas(canvas_5)
 
@@ -926,6 +927,8 @@ def gui():
     canvas_5.create_text(390, 200, text=f'and download the latest release ({version_latest}).', fill='#fff', font=('Lilita One Fresh', 16), anchor='nw')
     canvas_5.tag_bind('update_version', '<1>', lambda e:open_url('https://github.com/Waterdragen/BrawlCV'))
     canvas_5.create_text(50, 240, text='Proceeding may result in program failure.', fill='#fff', font=('Lilita One Fresh', 16), anchor='nw')
+    canvas_5.create_text(50, 300, text='Update changes', fill='#fff', font=('Lilita One Fresh', 27), anchor='nw')
+    canvas_5.create_text(50, 360, text=version_desc, fill='#fff', font=('Lilita One Fresh', 16), anchor='nw')
 
     # ========================================Place all Canvas
     for c in canvas_list:
