@@ -11,3 +11,5 @@ assets:43 MB fonts: 70 MB app: 17 MB
 # How to use:
 double click BrawlCV.exe on Windows <br />
 run BrawlCV.exe with Wine on Mac OS <br />
+# Inspired by:
+Ryosuke Okuhata @Brawl Share for Brawl Stars
