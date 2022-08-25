@@ -32,7 +32,7 @@ def validation(player_tag):
         raise ValueError('Player tag must only consist of P,Y,L,Q,G,R,J,C,U,V,0,2,8,9')
 
 def get_user(player_tag):
-    url = 'https://cr.is-a.dev/'+player_tag.upper()
+    url = f'https://cr.is-a.dev/{player_tag.upper()}'
     response = requests.get(url)
     if response.status_code in [400,403,404,429,500,503]:
         raise Exception(response.status_code)
@@ -49,13 +49,13 @@ def get_user(player_tag):
     try:
         club_name = user_json['club']['name']
         club_tag = user_json['club']['tag']
-        url = 'https://api.brawlstars.com/v1/clubs/%23' + club_tag[1:len(club_tag)]
+        url = f'https://api.brawlstars.com/v1/clubs/%23{club_tag[1:len(club_tag)]}'
         response = requests.get(url)
         if response.status_code in [400, 403, 404, 429, 500, 503]:
             raise Exception(response.status_code)
         club_json = response.json()
         club_badge_id = str(club_json['badgeId'])
-        club_badge = club_badge_id + '.png'
+        club_badge = f'{club_badge_id}.png'
     except KeyError:
         club_name = 'Not in a Club'
         club_tag = ''
@@ -88,7 +88,7 @@ def get_user(player_tag):
     return basic_profile_list
 
 def get_user_long(player_tag):
-    url = 'https://cr.is-a.dev/'+player_tag.upper()
+    url = f'https://cr.is-a.dev/{player_tag.upper()}'
     response = requests.get(url)
     if response.status_code in [400,403,404,429,500,503]:
         raise Exception(response.status_code)
@@ -96,7 +96,7 @@ def get_user_long(player_tag):
     return user_json
 
 def get_pl(player_tag):
-    url = 'https://brawlstats.com/profile/' + player_tag.upper()
+    url = f'https://brawlstats.com/profile/{player_tag.upper()}'
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -215,7 +215,7 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
     background_img_0 = background_img.resize((2048,aspect_height(2048,background_img)))
     draw = ImageDraw.Draw(background_img_0)
     try:
-        player_icon = Image.open('assets/player_icon/{}.png'.format(str(global_stats['icon_id']))).convert('RGBA')
+        player_icon = Image.open(f'assets/player_icon/{global_stats["icon_id"]}.png').convert('RGBA')
     except FileNotFoundError:
         player_icon = Image.open('assets/player_icon/0.png').convert('RGBA')
     player_icon_0 = player_icon.resize((110,aspect_height(110,player_icon)))
@@ -232,34 +232,34 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
     background_img_0.paste(player_icon_0,(30,30), player_icon_0)
     background_img_0.paste(club_badge_0,(40,160), club_badge_0)
     background_img_0.paste(stats_table_0,(30,270), stats_table_0)
-    draw_text(draw, 543, 353, '{}'.format(str(global_stats['trophies'])), bs_font_2)
-    draw_text(draw, 1233, 353, '{}'.format(str(global_stats['highest_trophies'])), bs_font_2)
-    draw_text(draw, 1923, 353, '{}'.format(str(global_stats['exp_level'])), bs_font_2)
-    draw_text(draw, 543, 493, '{}'.format(str(global_stats['x3v3_victories'])), bs_font_2)
-    draw_text(draw, 1233, 493, '{}'.format(str(global_stats['solo_victories'])), bs_font_2)
-    draw_text(draw, 1923, 493, '{}'.format(str(global_stats['duo_victories'])), bs_font_2)
-    solo_league = Image.open('assets/league_icon/ranked_ranks_l_{}.png'.format(str(global_ranks[0]))).convert('RGBA')
+    draw_text(draw, 543, 353, str(global_stats['trophies']), bs_font_2)
+    draw_text(draw, 1233, 353, str(global_stats['highest_trophies']), bs_font_2)
+    draw_text(draw, 1923, 353, str(global_stats['exp_level']), bs_font_2)
+    draw_text(draw, 543, 493, str(global_stats['x3v3_victories']), bs_font_2)
+    draw_text(draw, 1233, 493, str(global_stats['solo_victories']), bs_font_2)
+    draw_text(draw, 1923, 493, str(global_stats['duo_victories']), bs_font_2)
+    solo_league = Image.open(f'assets/league_icon/ranked_ranks_l_{global_ranks[0]}.png').convert('RGBA')
     solo_league_0 = solo_league.resize((170,aspect_height(170,solo_league)))
-    team_league = Image.open('assets/league_icon/ranked_ranks_l_{}.png'.format(str(global_ranks[1]))).convert('RGBA')
+    team_league = Image.open(f'assets/league_icon/ranked_ranks_l_{global_ranks[1]}.png').convert('RGBA')
     team_league_0 = team_league.resize((170, aspect_height(170, team_league)))
-    club_league = Image.open('assets/league_icon/club_ranks_l_{}.png'.format(str(global_ranks[2]))).convert('RGBA')
+    club_league = Image.open(f'assets/league_icon/club_ranks_l_{global_ranks[2]}.png').convert('RGBA')
     club_league_0 = club_league.resize((170, aspect_height(170, club_league)))
     background_img_0.paste(solo_league_0,(185, 616), solo_league_0)
     background_img_0.paste(team_league_0, (530, 616), team_league_0)
     background_img_0.paste(club_league_0, (875, 616), club_league_0)
-    draw_text(draw, 543, 773, '{}/{}'.format(str(global_stats['brawlers_owned']),str(avail_official[0])), bs_font_2)
-    draw_text(draw, 1233, 773, '{}/{}'.format(str(global_stats['sp_owned']),str(avail_official[1])), bs_font_2)
-    draw_text(draw, 1923, 773, '{}/{}'.format(str(global_stats['gadgets_owned']),str(avail_official[2])), bs_font_2)
-    draw_text(draw, 1233, 913, '{}'.format(str(global_ranks[3])), bs_font_2)
+    draw_text(draw, 543, 773, f'{global_stats["brawlers_owned"]}/{avail_official[0]}', bs_font_2)
+    draw_text(draw, 1233, 773, f'{global_stats["sp_owned"]}/{avail_official[1]}', bs_font_2)
+    draw_text(draw, 1923, 773, f'{global_stats["gadgets_owned"]}/{avail_official[2]}', bs_font_2)
+    draw_text(draw, 1233, 913, str(global_ranks[3]), bs_font_2)
     stats_sorted = sort_json(global_stats_long['brawlers'], 'highestTrophies', desc=True)
     brawler_overrd = str(brawler_overrd)
     if brawler_overrd == '':
         try:
-            brawler_3d = Image.open('assets/brawler_3d/{}.png'.format(str(stats_sorted[0]['id']))).convert('RGBA')
+            brawler_3d = Image.open(f'assets/brawler_3d/{stats_sorted[0]["id"]}.png').convert('RGBA')
         except FileNotFoundError:
             brawler_3d = Image.open('assets/brawler_3d/0.png').convert('RGBA')
         brawler_3d_0 = brawler_3d.resize((1800, aspect_height(1800, brawler_3d)))
-        brawler_rank = Image.open('assets/rank_icon/{}.png'.format(stats_sorted[0]['rank'])).convert('RGBA')
+        brawler_rank = Image.open(f'assets/rank_icon/{stats_sorted[0]["rank"]}.png').convert('RGBA')
         brawler_rank_0 = brawler_rank.resize((100, aspect_height(100, brawler_rank)))
         stats_tr = stats_sorted[0]['trophies']
         stats_htr = stats_sorted[0]['highestTrophies']
@@ -267,11 +267,12 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
         stats_gad = stats_sorted[0]['gadgets']
     else:
         try:
-            brawler_3d = Image.open('assets/brawler_3d/{}.png'.format(str(brawler_overrd))).convert('RGBA')
+            brawler_3d = Image.open(f'assets/brawler_3d/{brawler_overrd}.png').convert('RGBA')
         except FileNotFoundError:
             brawler_3d = Image.open('assets/brawler_3d/0.png').convert('RGBA')
         brawler_3d_0 = brawler_3d.resize((1800, aspect_height(1800, brawler_3d)))
-        brawler_rank = Image.open('assets/rank_icon/{}.png'.format(search_json(stats_sorted, 'id', brawler_overrd, 'rank'))).convert('RGBA')
+        rank_search = search_json(stats_sorted, 'id', brawler_overrd, 'rank')
+        brawler_rank = Image.open(f'assets/rank_icon/{rank_search}.png').convert('RGBA')
         brawler_rank_0 = brawler_rank.resize((100, aspect_height(100, brawler_rank)))
         stats_tr = search_json(stats_sorted, 'id', brawler_overrd, 'trophies')
         stats_htr = search_json(stats_sorted, 'id', brawler_overrd, 'highestTrophies')
@@ -286,7 +287,7 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
     background_img_0.paste(trophy_container_0, (1220, 80), trophy_container_0)
     background_img_0.paste(brawler_rank_0, (1160, 60), brawler_rank_0)
     background_img_0.paste(trophy_0, (1270, 95), trophy_0)
-    draw.text((1320, 95), '{}/{}'.format(str(stats_tr),str(stats_htr)), font=bs_font_3)
+    draw.text((1320, 95), f'{stats_tr}/{stats_htr}', font=bs_font_3)
     slot = []
     for i in range(2):
         try:
@@ -310,14 +311,14 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
             power_bg_0 = power_bg.resize((80, aspect_height(80, power_bg)))
             background_img_0.paste(power_bg_0, (1540+90*i, 75), power_bg_0)
             try:
-                power_fore = Image.open('assets/star_powers/{}.png'.format(slot[i*2])).convert('RGBA')
+                power_fore = Image.open(f'assets/star_powers/{slot[i*2]}.png').convert('RGBA')
             except FileNotFoundError:
                 if brawler_overrd == '':
                     temp = search_sp(get_official(code=1), stats_sorted[0]['id'], int(slot[i*2]))
                 else:
                     temp = search_sp(get_official(code=1), int(brawler_overrd), int(slot[i*2]))
                 try:
-                    power_fore = Image.open('assets/star_powers/sp{}.png'.format(str(temp))).convert('RGBA')
+                    power_fore = Image.open(f'assets/star_powers/sp{temp}.png').convert('RGBA')
                 except FileNotFoundError:
                     power_fore = Image.open('assets/star_powers/sp1.png').convert('RGBA')
         else:
@@ -325,14 +326,14 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
             power_bg_0 = power_bg.resize((80, aspect_height(80, power_bg)))
             background_img_0.paste(power_bg_0, (1540+90*i, 75), power_bg_0)
             try:
-                power_fore = Image.open('assets/gadgets/{}.png'.format(slot[i * 2])).convert('RGBA')
+                power_fore = Image.open(f'assets/gadgets/{slot[i * 2]}.png').convert('RGBA')
             except FileNotFoundError:
                 if brawler_overrd == '':
                     temp = search_sp(get_official(code=2), stats_sorted[0]['id'], int(slot[i*2]))
                 else:
                     temp = search_sp(get_official(code=2), int(brawler_overrd), int(slot[i*2]))
                 try:
-                    power_fore = Image.open('assets/gadgets/gad{}.png'.format(str(temp))).convert('RGBA')
+                    power_fore = Image.open(f'assets/gadgets/gad{temp}.png').convert('RGBA')
                 except FileNotFoundError:
                     power_fore = Image.open('assets/gadgets/gad1.png').convert('RGBA')
         if power_fore.width > power_fore.height:
@@ -349,11 +350,11 @@ def save_image2(bg_overrd=0):
     background_img_0 = background_img.resize((2048, aspect_height(2048, background_img)))
     draw = ImageDraw.Draw(background_img_0)
     try:
-        player_icon = Image.open('assets/player_icon/{}.png'.format(str(global_stats['icon_id']))).convert('RGBA')
+        player_icon = Image.open(f'assets/player_icon/{global_stats["icon_id"]}.png').convert('RGBA')
     except FileNotFoundError:
         player_icon = Image.open('assets/player_icon/0.png').convert('RGBA')
     player_icon_0 = player_icon.resize((110, aspect_height(110, player_icon)))
-    club_badge = Image.open('assets/club_badge/' + global_stats['club_badge']).convert('RGBA')
+    club_badge = Image.open(f'assets/club_badge/{global_stats["club_badge"]}').convert('RGBA')
     club_badge_0 = club_badge.resize((90, aspect_height(90, club_badge)))
     #draw_border(draw, 170, 35, '{}'.format(str(global_stats['name'])), bs_font_0)
     #draw.text((170, 35), '{}'.format(str(global_stats['name'])), font=bs_font_0)
@@ -367,13 +368,13 @@ def save_image2(bg_overrd=0):
     pos = 0
     colors = [(62,50,122),(195,55,68),(83,186,117),(185,72,238),(97,168,234),(216,152,83),(129,133,182),(198,93,45)]
     for i in stats_sorted:
-        img_src = 'assets/portraits/'+str(i['id'])+'.png'
+        img_src = f'assets/portraits/{i["id"]}.png'
         try:
             brawler_img = Image.open(img_src).convert('RGBA')
         except FileNotFoundError:
             brawler_img = Image.open('assets/portraits/0.png').convert('RGBA')
         brawler_img_0 = brawler_img.resize((aspect_width(99, brawler_img),99))
-        brawler_rank = Image.open('assets/rank_icon/'+str(i['rank'])+'.png').convert('RGBA')
+        brawler_rank = Image.open(f'assets/rank_icon/{i["rank"]}.png').convert('RGBA')
         brawler_rank_0 = brawler_rank.resize((82, aspect_height(82, brawler_rank)))
         if i['rank'] == 35:
             rank_color = colors[0]
@@ -507,8 +508,8 @@ def show_canvas(canv, skip=False):
                 brawler_pin_1 = brawler_pin.resize((aspect_width(45, brawler_pin), 45))
             brawler_pin_0 = ImageTk.PhotoImage(brawler_pin_1)
             brawler_pin_list.append(brawler_pin_0)
-            canv.create_image(pin_num%24*51+55, pin_num//24*48+560, image=brawler_pin_list[pin_num], anchor="center", tag='pin_'+str(pin_id_num))
-            canv.tag_bind('pin_'+str(pin_id_num), '<1>', lambda e: change_color(canv) if element_tag2(e) else change_color(canv))
+            canv.create_image(pin_num%24*51+55, pin_num//24*48+560, image=brawler_pin_list[pin_num], anchor="center", tag=f'pin_{pin_id_num}')
+            canv.tag_bind(f'pin_{pin_id_num}', '<1>', lambda e: change_color(canv) if element_tag2(e) else change_color(canv))
             pin_num += 1
             pin_id_num += 1
             if pin_id_num == 33 or pin_id_num == 55:
@@ -543,7 +544,7 @@ def validation_1(tag, canv=None):
             return 1
 
     # =======================================cr.is-a.dev init
-    url_cr = 'https://cr.is-a.dev/' + tag.upper()
+    url_cr = f'https://cr.is-a.dev/{tag.upper()}'
     response_cr = requests.get(url_cr)
     # =======================================cr.is-a.dev global_stats_long, global_stats, avail_official
     global_stats_long = response_cr.json()
@@ -562,13 +563,13 @@ def validation_1(tag, canv=None):
     try:
         club_name = global_stats_long['club']['name']
         club_tag = global_stats_long['club']['tag']
-        url = 'https://cr.is-a.dev/clubs/' + club_tag[1:len(club_tag)]
+        url = f'https://cr.is-a.dev/clubs/{club_tag[1:len(club_tag)]}'
         response = requests.get(url)
         if response.status_code in [400, 403, 404, 429, 500, 503]:
             return response.status_code
         club_json = response.json()
         club_badge_id = str(club_json['badgeId'])
-        club_badge = club_badge_id + '.png'
+        club_badge = f'{club_badge_id}.png'
     except KeyError:
         club_name = 'Not in a Club'
         club_tag = ''
@@ -601,7 +602,7 @@ def validation_1(tag, canv=None):
     avail_official = get_official()
 
     # =======================================BrawlStats init
-    url_stats = 'https://brawlstats.com/profile/' + tag.upper()
+    url_stats = f'https://brawlstats.com/profile/{tag.upper()}'
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -870,8 +871,7 @@ def gui():
     canvas_2.create_text(50, 290, text='Just simply enter your player tag and Brawl CV will fetch the Brawl Stars API using the provided tag.',
                         fill='#fff', font=('Lilita One Fresh', 16), anchor='nw')
     canvas_2.create_text(50, 340, text='Why am I getting a Brawl Stats error?', fill='#fff', font=('Lilita One Fresh', 25), anchor='nw')
-    canvas_2.create_text(50, 390, text="An error occurred on the Brawl Stats page. Don't worry, "+
-                                       "you can click the search button to try again.",
+    canvas_2.create_text(50, 390, text="An error occurred on the Brawl Stats page. Don't worry, you can click the search button to try again.",
                         fill='#fff', font=('Lilita One Fresh', 16), anchor='nw')
     canvas_2.create_text(50, 440, text='My account is lost / hacked / blocked – can you help me?', fill='#fff',
                         font=('Lilita One Fresh', 25), anchor='nw')
