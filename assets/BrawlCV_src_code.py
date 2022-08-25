@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 global_tag = ''
 TEXT_FONT = 'fonts/LilitaOne-Fresh.ttf'
 IOS_FONT = 'fonts/AppleColorEmoji.ttf'
-VERSION = 'v0.1.0'
+VERSION = 'v0.1.5'
 window = tk.Tk()
 global_stats = {}
 global_stats_long = {}
