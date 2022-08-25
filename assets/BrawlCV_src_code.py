@@ -28,9 +28,8 @@ brawler_pin_list = []
 def validation(player_tag):
     if player_tag == '':
         raise ValueError('Player tag is empty')
-    for i in player_tag:
-        if str(i).upper() not in ['P','Y','L','Q','G','R','J','C','U','V','0','2','8','9']:
-            raise ValueError('Player tag must only consist of P,Y,L,Q,G,R,J,C,U,V,0,2,8,9')
+    if not all(i.upper() in 'PYLQGRJCUV0289' for i in player_tag):
+        raise ValueError('Player tag must only consist of P,Y,L,Q,G,R,J,C,U,V,0,2,8,9')
 
 def get_user(player_tag):
     url = 'https://cr.is-a.dev/'+player_tag.upper()
