@@ -366,7 +366,7 @@ def save_image2(bg_overrd=0):
     background_img_0.paste(club_badge_0, (40, 160), club_badge_0)
     stats_sorted = sort_json(global_stats_long['brawlers'], 'highestTrophies', desc=True)
     pos = 0
-    colors = [(62,50,122),(195,55,68),(83,186,117),(185,72,238),(97,168,234),(216,152,83),(129,133,182),(198,93,45)]
+    colors = [(198, 93, 45), (129, 133, 182), (216, 152, 83), (97, 168, 234), (185, 72, 238), (83, 186, 117), (195, 55, 68), (62, 50, 122)]
     for i in stats_sorted:
         img_src = f'assets/portraits/{i["id"]}.png'
         try:
@@ -376,22 +376,7 @@ def save_image2(bg_overrd=0):
         brawler_img_0 = brawler_img.resize((aspect_width(99, brawler_img),99))
         brawler_rank = Image.open(f'assets/rank_icon/{i["rank"]}.png').convert('RGBA')
         brawler_rank_0 = brawler_rank.resize((82, aspect_height(82, brawler_rank)))
-        if i['rank'] == 35:
-            rank_color = colors[0]
-        elif i['rank'] >= 30:
-            rank_color = colors[1]
-        elif i['rank'] >= 25:
-            rank_color = colors[2]
-        elif i['rank'] >= 20:
-            rank_color = colors[3]
-        elif i['rank'] >= 15:
-            rank_color = colors[4]
-        elif i['rank'] >= 10:
-            rank_color = colors[5]
-        elif i['rank'] >= 5:
-            rank_color = colors[6]
-        else:
-            rank_color = colors[7]
+        rank_color = colors[i['rank'] // 5]
         if pos < 5:
             draw.rectangle(two_pt_tuple((pos % 5 + 5)*222-193, (pos // 5 + 1)*114+37, 212, 104), fill=rank_color, outline='black', width=3)
             #draw.rectangle(two_pt_tuple((pos % 5 + 4)*250-220, (pos // 5 + 1)*102+57, 242, 95), fill=rank_color, outline='black', width=3)
