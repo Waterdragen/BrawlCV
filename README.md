@@ -13,3 +13,5 @@ double click BrawlCV.exe on Windows <br />
 run BrawlCV.exe with Wine on Mac OS <br />
 # Inspired by:
 Ryosuke Okuhata @Brawl Share for Brawl Stars
+
+'Program is too slow! wtf! not responding!' I'm sorry I suck :(
