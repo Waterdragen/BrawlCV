@@ -34,7 +34,7 @@ def validation(player_tag):
 
 def get_user(player_tag):
     url = 'https://cr.is-a.dev/'+player_tag.upper()
-    response = requests.get(url, headers = waterdr_key)
+    response = requests.get(url)
     if response.status_code in [400,403,404,429,500,503]:
         raise Exception(response.status_code)
     user_json = response.json()
@@ -51,7 +51,7 @@ def get_user(player_tag):
         club_name = user_json['club']['name']
         club_tag = user_json['club']['tag']
         url = 'https://api.brawlstars.com/v1/clubs/%23' + club_tag[1:len(club_tag)]
-        response = requests.get(url, headers=waterdr_key)
+        response = requests.get(url)
         if response.status_code in [400, 403, 404, 429, 500, 503]:
             raise Exception(response.status_code)
         club_json = response.json()
@@ -90,7 +90,7 @@ def get_user(player_tag):
 
 def get_user_long(player_tag):
     url = 'https://cr.is-a.dev/'+player_tag.upper()
-    response = requests.get(url, headers = waterdr_key)
+    response = requests.get(url)
     if response.status_code in [400,403,404,429,500,503]:
         raise Exception(response.status_code)
     user_json = response.json()
@@ -564,7 +564,7 @@ def validation_1(tag, canv=None):
         club_name = global_stats_long['club']['name']
         club_tag = global_stats_long['club']['tag']
         url = 'https://cr.is-a.dev/clubs/' + club_tag[1:len(club_tag)]
-        response = requests.get(url, headers=waterdr_key)
+        response = requests.get(url)
         if response.status_code in [400, 403, 404, 429, 500, 503]:
             return response.status_code
         club_json = response.json()
