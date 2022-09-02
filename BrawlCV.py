@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageTk
 GlobalTag = ''
 TEXT_FONT = 'fonts/LilitaOne-Fresh.ttf'
 IOS_FONT = 'fonts/AppleColorEmoji.ttf'
-VERSION = 'v0.1.5'
+VERSION = 'v0.2.0'
 Window = tk.Tk()
 GlobalStats = {}
 GlobalStatsLong = {}
