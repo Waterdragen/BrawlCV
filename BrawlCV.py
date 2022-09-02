@@ -223,13 +223,13 @@ def two_pt_tuple(x, y, width, height):
     return coord
 
 
-def save_image1(bg_overrd=0, brawler_overrd=''):
+def save_image1(bg_override=0, brawler_override=''):
     bs_font_0 = ImageFont.truetype(TEXT_FONT, 90)
     bs_font_1 = ImageFont.truetype(TEXT_FONT, 60)
     bs_font_2 = ImageFont.truetype(TEXT_FONT, 45)
     bs_font_3 = ImageFont.truetype(TEXT_FONT, 38)
     background_img = Image.open(
-        f'assets/background/{str(bg_overrd)}.png').convert('RGBA')
+        f'assets/background/{str(bg_override)}.png').convert('RGBA')
     background_img_0 = background_img.resize(
         (2048, aspect_height(2048, background_img)))
     draw = ImageDraw.Draw(background_img_0)
@@ -289,8 +289,8 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
     draw_text(draw, 1233, 913, str(GlobalRanks[3]), bs_font_2)
     stats_sorted = sort_json(
         GlobalStatsLong['brawlers'], 'highestTrophies', desc=True)
-    brawler_overrd = str(brawler_overrd)
-    if brawler_overrd == '':
+    brawler_override = str(brawler_override)
+    if brawler_override == '':
         try:
             brawler_3d = Image.open(
                 f'assets/brawler_3d/{stats_sorted[0]["id"]}.png').convert('RGBA')
@@ -310,25 +310,25 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
     else:
         try:
             brawler_3d = Image.open(
-                f'assets/brawler_3d/{brawler_overrd}.png').convert('RGBA')
+                f'assets/brawler_3d/{brawler_override}.png').convert('RGBA')
         except FileNotFoundError:
             brawler_3d = Image.open(
                 'assets/brawler_3d/0.png').convert('RGBA')
         brawler_3d_0 = brawler_3d.resize(
             (1800, aspect_height(1800, brawler_3d)))
-        rank_search = search_json(stats_sorted, 'id', brawler_overrd, 'rank')
+        rank_search = search_json(stats_sorted, 'id', brawler_override, 'rank')
         brawler_rank = Image.open(
             f'assets/rank_icon/{rank_search}.png').convert('RGBA')
         brawler_rank_0 = brawler_rank.resize(
             (100, aspect_height(100, brawler_rank)))
         stats_tr = search_json(
-            stats_sorted, 'id', brawler_overrd, 'trophies')
+            stats_sorted, 'id', brawler_override, 'trophies')
         stats_htr = search_json(
-            stats_sorted, 'id', brawler_overrd, 'highestTrophies')
+            stats_sorted, 'id', brawler_override, 'highestTrophies')
         stats_sp = search_json(
-            stats_sorted, 'id', brawler_overrd, 'starPowers')
+            stats_sorted, 'id', brawler_override, 'starPowers')
         stats_gad = search_json(
-            stats_sorted, 'id', brawler_overrd, 'gadgets')
+            stats_sorted, 'id', brawler_override, 'gadgets')
 
     trophy_container = Image.open(
         'assets/stats/container.png').convert('RGBA')
@@ -370,12 +370,12 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
                 power_fore = Image.open(
                     f'assets/star_powers/{slot[i*2]}.png').convert('RGBA')
             except FileNotFoundError:
-                if brawler_overrd == '':
+                if brawler_override == '':
                     temp = search_sp(get_official(code=1),
                                      stats_sorted[0]['id'], int(slot[i * 2]))
                 else:
                     temp = search_sp(get_official(code=1), int(
-                        brawler_overrd), int(slot[i * 2]))
+                        brawler_override), int(slot[i * 2]))
                 try:
                     power_fore = Image.open(
                         f'assets/star_powers/sp{temp}.png').convert('RGBA')
@@ -392,12 +392,12 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
                 power_fore = Image.open(
                     f'assets/gadgets/{slot[i * 2]}.png').convert('RGBA')
             except FileNotFoundError:
-                if brawler_overrd == '':
+                if brawler_override == '':
                     temp = search_sp(get_official(code=2),
                                      stats_sorted[0]['id'], int(slot[i * 2]))
                 else:
                     temp = search_sp(get_official(code=2), int(
-                        brawler_overrd), int(slot[i * 2]))
+                        brawler_override), int(slot[i * 2]))
                 try:
                     power_fore = Image.open(
                         f'assets/gadgets/gad{temp}.png').convert('RGBA')
@@ -415,12 +415,12 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
     background_img_0.save('profile1.png')
 
 
-def save_image2(bg_overrd=0):
+def save_image2(bg_override=0):
     bs_font_0 = ImageFont.truetype(TEXT_FONT, 90)
     bs_font_1 = ImageFont.truetype(TEXT_FONT, 60)
     #bs_font_2 = ImageFont.truetype('fonts/LilitaOne-Regular.ttf', 45)
     background_img = Image.open(
-        f'assets/background/plain-{str(bg_overrd)}.png').convert('RGBA')
+        f'assets/background/plain-{str(bg_override)}.png').convert('RGBA')
     background_img_0 = background_img.resize(
         (2048, aspect_height(2048, background_img)))
     draw = ImageDraw.Draw(background_img_0)
@@ -836,8 +836,8 @@ def element_tag2(event):
 
 def change_color(canv):
     global Window, BgColorOverride, BrawlerOverride
-    save_image1(bg_overrd=BgColorOverride, brawler_overrd=BrawlerOverride)
-    save_image2(bg_overrd=BgColorOverride)
+    save_image1(bg_override=BgColorOverride, brawler_override=BrawlerOverride)
+    save_image2(bg_override=BgColorOverride)
     profile1 = Image.open('profile1.png')
     profile1_1 = profile1.resize((620, aspect_height(620, profile1)))
     profile1_0 = ImageTk.PhotoImage(profile1_1)
