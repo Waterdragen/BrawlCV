@@ -12,27 +12,19 @@ from bs4 import BeautifulSoup
 from emot.emo_unicode import UNICODE_EMOJI
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
-global_tag = ''
+GlobalTag = ''
 TEXT_FONT = 'fonts/LilitaOne-Fresh.ttf'
 IOS_FONT = 'fonts/AppleColorEmoji.ttf'
 VERSION = 'v0.1.5'
-window = tk.Tk()
-global_stats = {}
-global_stats_long = {}
-global_ranks = []
-avail_official = []
-err_code = 0
-bg_color_override = 0
-brawler_override = ''
-brawler_pin_list = []
-
-
-def validation(player_tag):
-    if player_tag == '':
-        raise ValueError('Player tag is empty')
-    if not all(i.upper() in 'PYLQGRJCUV0289' for i in player_tag):
-        raise ValueError(
-            'Player tag must only consist of P,Y,L,Q,G,R,J,C,U,V,0,2,8,9')
+Window = tk.Tk()
+GlobalStats = {}
+GlobalStatsLong = {}
+GlobalRanks = []
+AvailOfficial = []
+ErrCode = 0
+BgColorOverride = 0
+BrawlerOverride = ''
+BrawlerPinList = []
 
 
 def get_user(player_tag):
@@ -243,21 +235,21 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
     draw = ImageDraw.Draw(background_img_0)
     try:
         player_icon = Image.open(
-            f'assets/player_icon/{global_stats["icon_id"]}.png').convert('RGBA')
+            f'assets/player_icon/{GlobalStats["icon_id"]}.png').convert('RGBA')
     except FileNotFoundError:
         player_icon = Image.open('assets/player_icon/0.png').convert('RGBA')
     player_icon_0 = player_icon.resize(
         (110, aspect_height(110, player_icon)))
-    #draw_border(draw, 170, 35, '{}'.format(str(global_stats['name'])), bs_font_0)
-    #draw.text((170, 35), '{}'.format(str(global_stats['name'])), font=bs_font_0)
+    #draw_border(draw, 170, 35, '{}'.format(str(GlobalStats['name'])), bs_font_0)
+    #draw.text((170, 35), '{}'.format(str(GlobalStats['name'])), font=bs_font_0)
     background_img_0.paste(place_text(
-        global_stats['name'], 90), (170, 35 - 90 // 2), place_text(global_stats['name'], 90))
-    #draw_border(draw, 170, 165, '{}'.format(str(global_stats['club_name'])), bs_font_1)
-    #draw.text((170, 165), '{}'.format(str(global_stats['club_name'])), font=bs_font_1)
-    background_img_0.paste(place_text(global_stats['club_name'], 60), (
-        170, 165 - 60 // 2), place_text(global_stats['club_name'], 60))
+        GlobalStats['name'], 90), (170, 35 - 90 // 2), place_text(GlobalStats['name'], 90))
+    #draw_border(draw, 170, 165, '{}'.format(str(GlobalStats['club_name'])), bs_font_1)
+    #draw.text((170, 165), '{}'.format(str(GlobalStats['club_name'])), font=bs_font_1)
+    background_img_0.paste(place_text(GlobalStats['club_name'], 60), (
+        170, 165 - 60 // 2), place_text(GlobalStats['club_name'], 60))
     club_badge = Image.open('assets/club_badge/' +
-                            global_stats['club_badge']).convert('RGBA')
+                            GlobalStats['club_badge']).convert('RGBA')
     club_badge_0 = club_badge.resize((90, aspect_height(90, club_badge)))
     stats_table = Image.open('assets/stats/stats_table.png').convert('RGBA')
     stats_table_0 = stats_table.resize(
@@ -265,38 +257,38 @@ def save_image1(bg_overrd=0, brawler_overrd=''):
     background_img_0.paste(player_icon_0, (30, 30), player_icon_0)
     background_img_0.paste(club_badge_0, (40, 160), club_badge_0)
     background_img_0.paste(stats_table_0, (30, 270), stats_table_0)
-    draw_text(draw, 543, 353, str(global_stats['trophies']), bs_font_2)
+    draw_text(draw, 543, 353, str(GlobalStats['trophies']), bs_font_2)
     draw_text(draw, 1233, 353, str(
-        global_stats['highest_trophies']), bs_font_2)
-    draw_text(draw, 1923, 353, str(global_stats['exp_level']), bs_font_2)
-    draw_text(draw, 543, 493, str(global_stats['x3v3_victories']), bs_font_2)
+        GlobalStats['highest_trophies']), bs_font_2)
+    draw_text(draw, 1923, 353, str(GlobalStats['exp_level']), bs_font_2)
+    draw_text(draw, 543, 493, str(GlobalStats['x3v3_victories']), bs_font_2)
     draw_text(draw, 1233, 493, str(
-        global_stats['solo_victories']), bs_font_2)
-    draw_text(draw, 1923, 493, str(global_stats['duo_victories']), bs_font_2)
+        GlobalStats['solo_victories']), bs_font_2)
+    draw_text(draw, 1923, 493, str(GlobalStats['duo_victories']), bs_font_2)
     solo_league = Image.open(
-        f'assets/league_icon/ranked_ranks_l_{global_ranks[0]}.png').convert('RGBA')
+        f'assets/league_icon/ranked_ranks_l_{GlobalRanks[0]}.png').convert('RGBA')
     solo_league_0 = solo_league.resize(
         (170, aspect_height(170, solo_league)))
     team_league = Image.open(
-        f'assets/league_icon/ranked_ranks_l_{global_ranks[1]}.png').convert('RGBA')
+        f'assets/league_icon/ranked_ranks_l_{GlobalRanks[1]}.png').convert('RGBA')
     team_league_0 = team_league.resize(
         (170, aspect_height(170, team_league)))
     club_league = Image.open(
-        f'assets/league_icon/club_ranks_l_{global_ranks[2]}.png').convert('RGBA')
+        f'assets/league_icon/club_ranks_l_{GlobalRanks[2]}.png').convert('RGBA')
     club_league_0 = club_league.resize(
         (170, aspect_height(170, club_league)))
     background_img_0.paste(solo_league_0, (185, 616), solo_league_0)
     background_img_0.paste(team_league_0, (530, 616), team_league_0)
     background_img_0.paste(club_league_0, (875, 616), club_league_0)
     draw_text(draw, 543, 773,
-              f'{global_stats["brawlers_owned"]}/{avail_official[0]}', bs_font_2)
+              f'{GlobalStats["brawlers_owned"]}/{AvailOfficial[0]}', bs_font_2)
     draw_text(draw, 1233, 773,
-              f'{global_stats["sp_owned"]}/{avail_official[1]}', bs_font_2)
+              f'{GlobalStats["sp_owned"]}/{AvailOfficial[1]}', bs_font_2)
     draw_text(draw, 1923, 773,
-              f'{global_stats["gadgets_owned"]}/{avail_official[2]}', bs_font_2)
-    draw_text(draw, 1233, 913, str(global_ranks[3]), bs_font_2)
+              f'{GlobalStats["gadgets_owned"]}/{AvailOfficial[2]}', bs_font_2)
+    draw_text(draw, 1233, 913, str(GlobalRanks[3]), bs_font_2)
     stats_sorted = sort_json(
-        global_stats_long['brawlers'], 'highestTrophies', desc=True)
+        GlobalStatsLong['brawlers'], 'highestTrophies', desc=True)
     brawler_overrd = str(brawler_overrd)
     if brawler_overrd == '':
         try:
@@ -434,26 +426,26 @@ def save_image2(bg_overrd=0):
     draw = ImageDraw.Draw(background_img_0)
     try:
         player_icon = Image.open(
-            f'assets/player_icon/{global_stats["icon_id"]}.png').convert('RGBA')
+            f'assets/player_icon/{GlobalStats["icon_id"]}.png').convert('RGBA')
     except FileNotFoundError:
         player_icon = Image.open('assets/player_icon/0.png').convert('RGBA')
     player_icon_0 = player_icon.resize(
         (110, aspect_height(110, player_icon)))
     club_badge = Image.open(
-        f'assets/club_badge/{global_stats["club_badge"]}').convert('RGBA')
+        f'assets/club_badge/{GlobalStats["club_badge"]}').convert('RGBA')
     club_badge_0 = club_badge.resize((90, aspect_height(90, club_badge)))
-    #draw_border(draw, 170, 35, '{}'.format(str(global_stats['name'])), bs_font_0)
-    #draw.text((170, 35), '{}'.format(str(global_stats['name'])), font=bs_font_0)
+    #draw_border(draw, 170, 35, '{}'.format(str(GlobalStats['name'])), bs_font_0)
+    #draw.text((170, 35), '{}'.format(str(GlobalStats['name'])), font=bs_font_0)
     background_img_0.paste(place_text(
-        global_stats['name'], 90), (170, 35 - 90 // 2), place_text(global_stats['name'], 90))
-    #draw_border(draw, 170, 165, '{}'.format(str(global_stats['club_name'])), bs_font_1)
-    #draw.text((170, 165), '{}'.format(str(global_stats['club_name'])), font=bs_font_1)
-    background_img_0.paste(place_text(global_stats['club_name'], 60), (
-        170, 165 - 60 // 2), place_text(global_stats['club_name'], 60))
+        GlobalStats['name'], 90), (170, 35 - 90 // 2), place_text(GlobalStats['name'], 90))
+    #draw_border(draw, 170, 165, '{}'.format(str(GlobalStats['club_name'])), bs_font_1)
+    #draw.text((170, 165), '{}'.format(str(GlobalStats['club_name'])), font=bs_font_1)
+    background_img_0.paste(place_text(GlobalStats['club_name'], 60), (
+        170, 165 - 60 // 2), place_text(GlobalStats['club_name'], 60))
     background_img_0.paste(player_icon_0, (30, 30), player_icon_0)
     background_img_0.paste(club_badge_0, (40, 160), club_badge_0)
     stats_sorted = sort_json(
-        global_stats_long['brawlers'], 'highestTrophies', desc=True)
+        GlobalStatsLong['brawlers'], 'highestTrophies', desc=True)
     pos = 0
     colors = [(198, 93, 45), (129, 133, 182), (216, 152, 83), (97, 168, 234),
               (185, 72, 238), (83, 186, 117), (195, 55, 68), (62, 50, 122)]
@@ -482,12 +474,10 @@ def save_image2(bg_overrd=0):
         else:
             draw.rectangle(two_pt_tuple(((pos - 5) % 9 + 1) * 222 - 193, ((pos - 5) // 9 + 2) *
                            114 + 37, 212, 104), fill=rank_color, outline='black', width=3)
-            #draw.rectangle(two_pt_tuple(((pos - 5) % 8 + 1)*250-220, ((pos - 5) // 8 + 2)*102+57, 242, 95), fill=rank_color, outline='black', width=3)
             background_img_0.paste(brawler_img_0, ((
                 (pos - 5) % 9 + 1) * 222 - 190, ((pos - 5) // 9 + 2) * 114 + 40), brawler_img_0)
             background_img_0.paste(brawler_rank_0, ((
                 (pos - 5) % 9 + 1) * 222 - 73, ((pos - 5) // 9 + 2) * 114 + 43), brawler_rank_0)
-        #print(i['name'], str(i['highestTrophies']), str(i['rank']), sep='  ')
         pos += 1
     background_img_0.save('profile2.png')
 
@@ -545,7 +535,7 @@ def open_url(url):
 
 
 def show_canvas(canv, skip=False):
-    global window, global_tag, global_stats, global_stats_long, global_ranks, avail_official, brawler_pin_list
+    global Window, GlobalTag, GlobalStats, GlobalStatsLong, GlobalRanks, AvailOfficial, BrawlerPinList
     tk.Misc.lift(canv)
     if str(canv) == '.!canvas4':
         with open('assets/config/config_tag.json', 'r') as f:
@@ -555,41 +545,41 @@ def show_canvas(canv, skip=False):
             f.close()
             os.remove('assets/config/config_tag.json')
             with open('assets/config/config_tag.json', 'w') as f:
-                config_tag['tag'] = global_tag
+                config_tag['tag'] = GlobalTag
                 json.dump(config_tag, f)
             save_image1()
             save_image2()
         else:  # skips, need to load json
             with open('assets/config/config_stats.json', 'r') as f:
-                global_stats = json.load(f)
+                GlobalStats = json.load(f)
                 f.close()
             with open('assets/config/config_stats_long.json', 'r') as f:
-                global_stats_long = json.load(f)
+                GlobalStatsLong = json.load(f)
                 f.close()
             with open('assets/config/config_ranks.json', 'r') as f:
                 temp_list = json.load(f)
-                global_ranks = temp_list['ranks']
+                GlobalRanks = temp_list['ranks']
                 f.close()
             with open('assets/config/config_avail.json', 'r') as f:
                 temp_list = json.load(f)
-                avail_official = temp_list['avail']
+                AvailOfficial = temp_list['avail']
                 f.close()
         profile1 = Image.open('profile1.png')
         profile1_1 = profile1.resize((620, aspect_height(620, profile1)))
         profile1_0 = ImageTk.PhotoImage(profile1_1)
-        window.profile1_0 = profile1_0
-        canv.create_image(15, 200, image=window.profile1_0, anchor='nw')
+        Window.profile1_0 = profile1_0
+        canv.create_image(15, 200, image=Window.profile1_0, anchor='nw')
         profile2 = Image.open('profile2.png')
         profile2_1 = profile2.resize((620, aspect_height(620, profile2)))
         profile2_0 = ImageTk.PhotoImage(profile2_1)
-        window.profile2_0 = profile2_0
-        canv.create_image(645, 200, image=window.profile2_0, anchor='nw')
+        Window.profile2_0 = profile2_0
+        canv.create_image(645, 200, image=Window.profile2_0, anchor='nw')
         pin_num = 0
         pin_id_num = 0
-        brawler_pin_list = []
+        BrawlerPinList = []
         sort_override = [16000000, 16000001, 16000003, 16000007, 16000008, 16000009, 16000010, 16000002, 16000004,
                          16000006, 16000013, 16000011, 16000014, 16000005, 16000012]
-        for i in global_stats_long['brawlers']:
+        for i in GlobalStatsLong['brawlers']:
             if i['id'] <= 16000014:
                 j = sort_override[pin_num]
             else:
@@ -610,9 +600,9 @@ def show_canvas(canv, skip=False):
                 brawler_pin_1 = brawler_pin.resize(
                     (aspect_width(45, brawler_pin), 45))
             brawler_pin_0 = ImageTk.PhotoImage(brawler_pin_1)
-            brawler_pin_list.append(brawler_pin_0)
+            BrawlerPinList.append(brawler_pin_0)
             canv.create_image(pin_num % 24 * 51 + 55, pin_num // 24 * 48 + 560,
-                              image=brawler_pin_list[pin_num], anchor="center", tag=f'pin_{pin_id_num}')
+                              image=BrawlerPinList[pin_num], anchor="center", tag=f'pin_{pin_id_num}')
             canv.tag_bind(f'pin_{pin_id_num}', '<1>', lambda e: change_color(
                 canv) if element_tag2(e) else change_color(canv))
             pin_num += 1
@@ -621,58 +611,37 @@ def show_canvas(canv, skip=False):
                 pin_id_num += 1
 
 
-def validation_0(tag):
-    try:
-        validation(tag)
-    except ValueError as e:
-        window_err = tk.Tk()
-        window_err.title('Bad Input')
-        window_err.geometry('300x150')
-        window_err.attributes('-topmost', True)
-        window_err.config(bg='#fff')
-        pyglet.font.add_file(TEXT_FONT)
-        background_img = Image.open('assets/ui/background.png')
-        background_img_1 = background_img.resize((1280, 720))
-        background_img_0 = ImageTk.PhotoImage(background_img_1)
-        canvas_err = tk.Canvas(
-            window_err, width=300, height=150, bd=0, highlightthickness=0)  # Error
-        canvas_err.create_image(40, 210, image=background_img_0, anchor='nw')
-        canvas_err.create_text(20, 105, text=e, fill='#fff', font=(
-            'Lilita One Fresh', 20), anchor='center')
-
-
-def validation_1(tag, canv=None):
-    global global_stats, global_stats_long, global_ranks, avail_official, global_tag, err_code
-    global_tag = tag
-    err_code = 0
+def validation(tag, canv=None):
+    global GlobalStats, GlobalStatsLong, GlobalRanks, AvailOfficial, GlobalTag, ErrCode
+    GlobalTag = tag
+    ErrCode = 0
     if tag == '':
-        err_code = 1
+        ErrCode = 1
         return 1
-    for i in tag:
-        if str(i).upper() not in ['P', 'Y', 'L', 'Q', 'G', 'R', 'J', 'C', 'U', 'V', '0', '2', '8', '9']:
-            err_code = 2
-            return 1
+    if not all(i.upper() in 'PYLQGRJCUV0289' for i in tag):
+        ErrCode = 2
+        return 1
 
     # =======================================cr.is-a.dev init
     url_cr = f'https://cr.is-a.dev/{tag.upper()}'
     response_cr = requests.get(url_cr)
-    # =======================================cr.is-a.dev global_stats_long, global_stats, avail_official
-    global_stats_long = response_cr.json()
-    if 'message' in global_stats_long:
-        err_code = int(global_stats_long['message'][0:3])
+    # =======================================cr.is-a.dev GlobalStatsLong, GlobalStats, AvailOfficial
+    GlobalStatsLong = response_cr.json()
+    if 'message' in GlobalStatsLong:
+        ErrCode = int(GlobalStatsLong['message'][0:3])
         return 1
-    name = global_stats_long['name']
-    icon_id = global_stats_long['icon']['id']
-    trophies = global_stats_long['trophies']
-    highest_trophies = global_stats_long['highestTrophies']
-    exp_level = global_stats_long['expLevel']
-    x3v3_victories = global_stats_long['3vs3Victories']
-    solo_victories = global_stats_long['soloVictories']
-    duo_victories = global_stats_long['duoVictories']
+    name = GlobalStatsLong['name']
+    icon_id = GlobalStatsLong['icon']['id']
+    trophies = GlobalStatsLong['trophies']
+    highest_trophies = GlobalStatsLong['highestTrophies']
+    exp_level = GlobalStatsLong['expLevel']
+    x3v3_victories = GlobalStatsLong['3vs3Victories']
+    solo_victories = GlobalStatsLong['soloVictories']
+    duo_victories = GlobalStatsLong['duoVictories']
     in_club = True
     try:
-        club_name = global_stats_long['club']['name']
-        club_tag = global_stats_long['club']['tag']
+        club_name = GlobalStatsLong['club']['name']
+        club_tag = GlobalStatsLong['club']['tag']
         url = f'https://cr.is-a.dev/clubs/{club_tag[1:len(club_tag)]}'
         response = requests.get(url)
         if response.status_code in [400, 403, 404, 429, 500, 503]:
@@ -685,14 +654,14 @@ def validation_1(tag, canv=None):
         club_tag = ''
         club_badge = '0.png'
         in_club = False
-    brawlers_owned = len(global_stats_long['brawlers'])
+    brawlers_owned = len(GlobalStatsLong['brawlers'])
     sp_owned = 0
-    for i in global_stats_long['brawlers']:
+    for i in GlobalStatsLong['brawlers']:
         sp_owned += len(i['starPowers'])
     gadget_owned = 0
-    for i in global_stats_long['brawlers']:
+    for i in GlobalStatsLong['brawlers']:
         gadget_owned += len(i['gadgets'])
-    global_stats = {
+    GlobalStats = {
         'name': name,
         'icon_id': icon_id,
         'trophies': trophies,
@@ -709,7 +678,7 @@ def validation_1(tag, canv=None):
         'sp_owned': sp_owned,
         'gadgets_owned': gadget_owned
     }
-    avail_official = get_official()
+    AvailOfficial = get_official()
 
     # =======================================BrawlStats init
     url_stats = f'https://brawlstats.com/profile/{tag.upper()}'
@@ -723,14 +692,14 @@ def validation_1(tag, canv=None):
     }
     req = requests.get(url_stats, headers=headers)
     if req.status_code in [400, 403, 404, 429, 500, 503]:
-        err_code = req.status_code + 1000
+        ErrCode = req.status_code + 1000
         return 1
 
-    # =======================================BrawlStats global_ranks
+    # =======================================BrawlStats GlobalRanks
     soup = BeautifulSoup(req.text, 'html.parser')
     temp_ranks = []
     if soup.find('div', {'class': '_230Gh9q1rJmb0YFOn6qXf5'}) is not None:
-        err_code = 5000
+        ErrCode = 5000
         return 1
 
     for item in soup.find_all('img', {'class': 'DPUFH-EhiGBBrkki4Gsaf'}):
@@ -738,30 +707,30 @@ def validation_1(tag, canv=None):
     challenge_attrs = soup.find_all(
         'div', {'class': 'mo25VS9slOfRz6jng3WTf'})
     challenge_wins = int(challenge_attrs[10].text)
-    global_ranks.clear()
+    GlobalRanks.clear()
     for item in temp_ranks:
         for s in re.findall(r'\d+', item):
             if s.isdigit():
-                global_ranks.append(int(s))
-    global_ranks.append(challenge_wins)
+                GlobalRanks.append(int(s))
+    GlobalRanks.append(challenge_wins)
     with open('assets/config/config_stats.json', 'w') as f:
-        json.dump(global_stats, f)
+        json.dump(GlobalStats, f)
         f.close()
     with open('assets/config/config_stats_long.json', 'w') as f:
-        json.dump(global_stats_long, f)
+        json.dump(GlobalStatsLong, f)
         f.close()
     with open('assets/config/config_ranks.json', 'w') as f:
-        json.dump({'ranks': global_ranks}, f)
+        json.dump({'ranks': GlobalRanks}, f)
         f.close()
     with open('assets/config/config_avail.json', 'w') as f:
-        json.dump({'avail': avail_official}, f)
+        json.dump({'avail': AvailOfficial}, f)
         f.close()
 
     return 0  # not 0 returns True
 
 
 def bad_input_err(err_type=1, canv=None):
-    global window, err_code
+    global Window, ErrCode
     window_new = tk.Toplevel()
     window_new.geometry('400x255+360+360')
     window_new.config(bg='#fff')
@@ -812,7 +781,7 @@ def bad_input_err(err_type=1, canv=None):
 
 
 def select_color(canv):
-    global window
+    global Window
     window_new = tk.Toplevel()
     window_new.geometry('576x456+200+200')
     window_new.config(bg='#fff')
@@ -832,75 +801,75 @@ def select_color(canv):
 
 
 def element_tag(event, window_old):
-    global window, bg_color_override
+    global Window, BgColorOverride
     current = event.widget.find_withtag("current")[0]
     window_old.destroy()
     print(current)
-    bg_color_override = current - 1
+    BgColorOverride = current - 1
     return current
 
 
 def element_tag1(event):
-    global bg_color_override
+    global BgColorOverride
     current = event.widget.find_withtag("current")[0]
     current_str = event.widget.itemconfig(current)['tags'][-1][5]
-    bg_color_override = str(current_str)
+    BgColorOverride = str(current_str)
 
 
 def element_tag2(event):
-    global brawler_override
+    global BrawlerOverride
     current = event.widget.find_withtag("current")[0]
     current_str = event.widget.itemconfig(current)['tags'][-1]
     current_str_0 = re.findall('[0-9]+', current_str)
-    brawler_override = int(current_str_0[0])
+    BrawlerOverride = int(current_str_0[0])
     sort_override = [0, 1, 3, 7, 8, 9, 10, 2, 4, 6, 13, 11, 14, 5, 12]
-    if brawler_override <= 14:
-        brawler_override = sort_override[brawler_override]
-    if (brawler_override >= 48) and (brawler_override <= 53):
-        if brawler_override == 53:
-            brawler_override = 48
+    if BrawlerOverride <= 14:
+        BrawlerOverride = sort_override[BrawlerOverride]
+    if (BrawlerOverride >= 48) and (BrawlerOverride <= 53):
+        if BrawlerOverride == 53:
+            BrawlerOverride = 48
         else:
-            brawler_override += 1
-    brawler_override += 16000000
+            BrawlerOverride += 1
+    BrawlerOverride += 16000000
     return current
 
 
 def change_color(canv):
-    global window, bg_color_override, brawler_override
-    save_image1(bg_overrd=bg_color_override, brawler_overrd=brawler_override)
-    save_image2(bg_overrd=bg_color_override)
+    global Window, BgColorOverride, BrawlerOverride
+    save_image1(bg_overrd=BgColorOverride, brawler_overrd=BrawlerOverride)
+    save_image2(bg_overrd=BgColorOverride)
     profile1 = Image.open('profile1.png')
     profile1_1 = profile1.resize((620, aspect_height(620, profile1)))
     profile1_0 = ImageTk.PhotoImage(profile1_1)
-    window.profile1_0 = profile1_0
-    canv.create_image(15, 200, image=window.profile1_0, anchor='nw')
+    Window.profile1_0 = profile1_0
+    canv.create_image(15, 200, image=Window.profile1_0, anchor='nw')
     profile2 = Image.open('profile2.png')
     profile2_1 = profile2.resize((620, aspect_height(620, profile2)))
     profile2_0 = ImageTk.PhotoImage(profile2_1)
-    window.profile2_0 = profile2_0
-    canv.create_image(645, 200, image=window.profile2_0, anchor='nw')
+    Window.profile2_0 = profile2_0
+    canv.create_image(645, 200, image=Window.profile2_0, anchor='nw')
 
 
 def gui():
-    global window, VERSION
+    global Window, VERSION
 
     # ========================================Window config
-    window.title('BrawlCV')
-    window.geometry('1280x720+100+100')
-    window.config(bg='#fff')
+    Window.title('BrawlCV')
+    Window.geometry('1280x720+100+100')
+    Window.config(bg='#fff')
     smol_icon = tk.PhotoImage(file='assets/ui/brawl_cv_smol.png')
-    window.iconphoto(False, smol_icon)
-    canvas_1 = tk.Canvas(window, width=1280, height=720,
+    Window.iconphoto(False, smol_icon)
+    canvas_1 = tk.Canvas(Window, width=1280, height=720,
                          bd=0, highlightthickness=0)  # Sample
-    canvas_2 = tk.Canvas(window, width=1280, height=720,
+    canvas_2 = tk.Canvas(Window, width=1280, height=720,
                          bd=0, highlightthickness=0)  # FAQ
-    canvas_3 = tk.Canvas(window, width=1280, height=720,
+    canvas_3 = tk.Canvas(Window, width=1280, height=720,
                          bd=0, highlightthickness=0)  # Contributors
-    canvas_4 = tk.Canvas(window, width=1280, height=720,
+    canvas_4 = tk.Canvas(Window, width=1280, height=720,
                          bd=0, highlightthickness=0)  # Image1
-    canvas_5 = tk.Canvas(window, width=1280, height=720,
+    canvas_5 = tk.Canvas(Window, width=1280, height=720,
                          bd=0, highlightthickness=0)  # Image2
-    canvas_0 = tk.Canvas(window, width=1280, height=720,
+    canvas_0 = tk.Canvas(Window, width=1280, height=720,
                          bd=0, highlightthickness=0)  # Home
     canvas_list = (canvas_0, canvas_1, canvas_2,
                    canvas_3, canvas_4, canvas_5)
@@ -978,7 +947,7 @@ def gui():
     canvas_0.create_image(322, 210, image=search_button_0,
                           anchor='nw', tag='search_button')
     canvas_0.tag_bind('search_button', '<1>', lambda e: show_canvas(canvas_4)
-                      if not validation_1(tag_field.get('1.0', 'end-1c'), canvas_0) else bad_input_err(err_type=err_code, canv=canvas_4))
+                      if not validation(tag_field.get('1.0', 'end-1c'), canvas_0) else bad_input_err(err_type=ErrCode, canv=canvas_4))
 
     with open('assets/config/config_tag.json', 'r') as f:
         config_tag = json.load(f)
@@ -1045,7 +1014,9 @@ def gui():
     waterdr_pfp = Image.open('assets/ui/waterdragen_pfp.png')
     waterdr_pfp_1 = waterdr_pfp.resize((100, 100))
     waterdr_pfp_0 = ImageTk.PhotoImage(waterdr_pfp_1)
-    canvas_3.create_image(50, 140, image=waterdr_pfp_0, anchor='nw')
+    canvas_3.create_image(50, 140, image=waterdr_pfp_0, anchor='nw', tag='waterdr_pfp')
+    canvas_3.tag_bind('waterdr_pfp', '<1>', lambda e: open_url(
+        'https://github.com/Waterdragen'))
     canvas_3.create_text(160, 175, text="Waterdragen", fill='#fff', font=(
         'Lilita One Fresh', 22), anchor='nw')
     canvas_3.create_text(50, 260, text="a brawl cv dev. does random brawl stars stuff",
@@ -1077,6 +1048,14 @@ def gui():
                          font=('Lilita One Fresh', 18), anchor='nw')
     canvas_3.create_text(50, 420, text="brawlstats.com", fill='#fff', font=(
         'Lilita One Fresh', 18), anchor='nw')
+    rodriguez_moon_pfp = Image.open('assets/ui/rodriguez-moon_pfp.png')
+    rodriguez_moon_pfp_1 = rodriguez_moon_pfp.resize((100, 100))
+    rodriguez_moon_pfp_0 = ImageTk.PhotoImage(rodriguez_moon_pfp_1)
+    canvas_3.create_image(550, 140, image=rodriguez_moon_pfp_0, anchor='nw', tag='rodriguez_moon_pfp')
+    canvas_3.create_text(660, 175, text="Rodriguez Moon", fill='#fff', font=(
+        'Lilita One Fresh', 22), anchor='nw')
+    canvas_3.tag_bind('rodriguez_moon_pfp', '<1>', lambda e: open_url(
+        'https://github.com/rodriguez-moon'))
 
     # ========================================Image Preview
     canvas_4.create_text(50, 140, text='Preview', fill='#fff', font=(
@@ -1114,7 +1093,7 @@ def gui():
     # ========================================Place all Canvas
     for c in canvas_list:
         c.place(x=0, y=0, anchor='nw')  # placing canvas
-    window.mainloop()
+    Window.mainloop()
 
 
 if __name__ == '__main__':
