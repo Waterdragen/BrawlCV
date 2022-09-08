@@ -1,3 +1,5 @@
+import aiohttp
+import asyncio
 import json
 import os
 import re
@@ -15,11 +17,12 @@ from PIL import Image, ImageDraw, ImageFont, ImageTk
 GlobalTag = ''
 TEXT_FONT = 'fonts/LilitaOne-Fresh.ttf'
 IOS_FONT = 'fonts/AppleColorEmoji.ttf'
-VERSION = 'v0.2.0'
+VERSION = 'v0.2.1'
 Window = tk.Tk()
 GlobalStats = {}
 GlobalStatsLong = {}
 GlobalRanks = []
+GlobalOfficial = {}
 AvailOfficial = []
 ErrCode = 0
 BgColorOverride = 0
@@ -27,89 +30,34 @@ BrawlerOverride = ''
 BrawlerPinList = []
 
 
-def get_user(player_tag):
-    url = f'https://cr.is-a.dev/{player_tag.upper()}'
-    response = requests.get(url)
-    if response.status_code in [400, 403, 404, 429, 500, 503]:
-        raise Exception(response.status_code)
-    user_json = response.json()
-    name = user_json['name']
-    icon_id = user_json['icon']['id']
-    trophies = user_json['trophies']
-    highest_trophies = user_json['highestTrophies']
-    exp_level = user_json['expLevel']
-    x3v3_victories = user_json['3vs3Victories']
-    solo_victories = user_json['soloVictories']
-    duo_victories = user_json['duoVictories']
-    in_club = True
-    try:
-        club_name = user_json['club']['name']
-        club_tag = user_json['club']['tag']
-        url = f'https://api.brawlstars.com/v1/clubs/%23{club_tag[1:len(club_tag)]}'
-        response = requests.get(url)
-        if response.status_code in [400, 403, 404, 429, 500, 503]:
-            raise Exception(response.status_code)
-        club_json = response.json()
-        club_badge_id = str(club_json['badgeId'])
-        club_badge = f'{club_badge_id}.png'
-    except KeyError:
-        club_name = 'Not in a Club'
-        club_tag = ''
-        club_badge = '0.png'
-        in_club = False
-    brawlers_owned = len(user_json['brawlers'])
-    sp_owned = 0
-    for i in user_json['brawlers']:
-        sp_owned += len(i['starPowers'])
-    gadget_owned = 0
-    for i in user_json['brawlers']:
-        gadget_owned += len(i['gadgets'])
-    basic_profile_list = {
-        'name': name,
-        'icon_id': icon_id,
-        'trophies': trophies,
-        'highest_trophies': highest_trophies,
-        'exp_level': exp_level,
-        'x3v3_victories': x3v3_victories,
-        'solo_victories': solo_victories,
-        'duo_victories': duo_victories,
-        'in_club': in_club,
-        'club_name': club_name,
-        'club_tag': club_tag,
-        'club_badge': club_badge,
-        'brawlers_owned': brawlers_owned,
-        'sp_owned': sp_owned,
-        'gadgets_owned': gadget_owned
-    }
-    return basic_profile_list
+def url_tasks(session, url_list):
+    tasks = []
+    for url in url_list:
+        tasks.append(session.get(url, ssl=False))
+    return tasks
 
 
-def get_user_long(player_tag):
-    url = f'https://cr.is-a.dev/{player_tag.upper()}'
-    response = requests.get(url)
-    if response.status_code in [400, 403, 404, 429, 500, 503]:
-        raise Exception(response.status_code)
-    user_json = response.json()
-    return user_json
-
-
-def get_pl(player_tag):
-    url = f'https://brawlstats.com/profile/{player_tag.upper()}'
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-        'Accept-Encoding': 'none',
-        'Accept-Language': 'en-US,en;q=0.8',
-        'Connection': 'keep-alive'
-    }
-    req = requests.get(url, headers=headers)
-    if req.status_code in [400, 403, 404, 429, 500, 503]:
-        raise Exception(req.status_code)
-    soup = BeautifulSoup(req.text, 'html.parser')
+async def url_fetch(player_tag):
+    url_list = [
+        f'https://cr.is-a.dev/{player_tag.upper()}',    # get user long
+        'https://cr.is-a.dev/v1/brawlers',      # get official
+        f'https://brawlstats.com/profile/{player_tag.upper()}'  # get pl
+    ]
+    user_json_list = []
+    async with aiohttp.ClientSession() as session:
+        tasks = url_tasks(session, url_list)
+        responses = await asyncio.gather(*tasks)
+        for v, response in enumerate(responses):
+            if v == 2:
+                user_json_list.append(await response.text())
+                continue
+            user_json_list.append(await response.json())
+    # =======================================BeautifulSoup get pl start
+    soup = BeautifulSoup(user_json_list[2], 'html.parser')
     temp_ranks = []
     if soup.find('div', {'class': '_230Gh9q1rJmb0YFOn6qXf5'}) is not None:
-        raise Exception('Brawl Stats unknown error')
+        user_json_list.append('500')
+        return user_json_list
     for item in soup.find_all('img', {'class': 'DPUFH-EhiGBBrkki4Gsaf'}):
         temp_ranks.append(item['src'])
     challenge_attrs = soup.find_all(
@@ -121,15 +69,21 @@ def get_pl(player_tag):
             if s.isdigit():
                 ranks.append(int(s))
     ranks.append(challenge_wins)
-    return ranks
+    # =======================================get pl end
+    user_json_list[2] = ranks
+    return user_json_list
 
 
 def get_official(code=0):
-    url = 'https://cr.is-a.dev/v1/brawlers'
-    response = requests.get(url)
-    if response.status_code in [400, 403, 404, 429, 500, 503]:
-        raise Exception(response.status_code)
-    official_json = response.json()
+    global GlobalOfficial
+    if GlobalOfficial == '':
+        url = 'https://cr.is-a.dev/v1/brawlers'
+        response = requests.get(url)
+        if response.status_code in [400, 403, 404, 429, 500, 503]:
+            raise Exception(response.status_code)
+        official_json = response.json()
+    else:
+        official_json = GlobalOfficial
     brawler_available = len(official_json['items'])
     brawler_disabled = 0
     brawler_available -= brawler_disabled
@@ -141,7 +95,7 @@ def get_official(code=0):
     gadget_available = 0
     for i in official_json['items']:
         gadget_available += len(i['gadgets'])
-    gadget_disabled = 2
+    gadget_disabled = 0
     gadget_available -= gadget_disabled
     official_list = [brawler_available, sp_available, gadget_available]
     sp_list = []
@@ -513,11 +467,6 @@ def is_emoji(s):
     return s in UNICODE_EMOJI
 
 
-def uni_decode(s):
-    for i in str(s):
-        print('U+{:X}'.format(ord(i)), is_emoji(i))
-
-
 def search_sp(data, brawler_id, sp_id):
     for i in data:
         if i[0] == brawler_id:
@@ -611,8 +560,8 @@ def show_canvas(canv, skip=False):
                 pin_id_num += 1
 
 
-def validation(tag, canv=None):
-    global GlobalStats, GlobalStatsLong, GlobalRanks, AvailOfficial, GlobalTag, ErrCode
+def validation(tag):
+    global GlobalStats, GlobalStatsLong, GlobalRanks, GlobalOfficial, AvailOfficial, GlobalTag, ErrCode
     GlobalTag = tag
     ErrCode = 0
     if tag == '':
@@ -623,10 +572,15 @@ def validation(tag, canv=None):
         return 1
 
     # =======================================cr.is-a.dev init
-    url_cr = f'https://cr.is-a.dev/{tag.upper()}'
-    response_cr = requests.get(url_cr)
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    user_json_list = asyncio.run(url_fetch(player_tag=tag))
+    GlobalStatsLong = user_json_list[0]
+    GlobalOfficial = user_json_list[1]
+    if len(user_json_list) == 4:
+        ErrCode = 5000
+        return 1
+    GlobalRanks = user_json_list[2]
     # =======================================cr.is-a.dev GlobalStatsLong, GlobalStats, AvailOfficial
-    GlobalStatsLong = response_cr.json()
     if 'message' in GlobalStatsLong:
         ErrCode = int(GlobalStatsLong['message'][0:3])
         return 1
@@ -680,39 +634,7 @@ def validation(tag, canv=None):
     }
     AvailOfficial = get_official()
 
-    # =======================================BrawlStats init
-    url_stats = f'https://brawlstats.com/profile/{tag.upper()}'
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-        'Accept-Encoding': 'none',
-        'Accept-Language': 'en-US,en;q=0.8',
-        'Connection': 'keep-alive'
-    }
-    req = requests.get(url_stats, headers=headers)
-    if req.status_code in [400, 403, 404, 429, 500, 503]:
-        ErrCode = req.status_code + 1000
-        return 1
-
     # =======================================BrawlStats GlobalRanks
-    soup = BeautifulSoup(req.text, 'html.parser')
-    temp_ranks = []
-    if soup.find('div', {'class': '_230Gh9q1rJmb0YFOn6qXf5'}) is not None:
-        ErrCode = 5000
-        return 1
-
-    for item in soup.find_all('img', {'class': 'DPUFH-EhiGBBrkki4Gsaf'}):
-        temp_ranks.append(item['src'])
-    challenge_attrs = soup.find_all(
-        'div', {'class': 'mo25VS9slOfRz6jng3WTf'})
-    challenge_wins = int(challenge_attrs[10].text)
-    GlobalRanks.clear()
-    for item in temp_ranks:
-        for s in re.findall(r'\d+', item):
-            if s.isdigit():
-                GlobalRanks.append(int(s))
-    GlobalRanks.append(challenge_wins)
     with open('assets/config/config_stats.json', 'w') as f:
         json.dump(GlobalStats, f)
         f.close()
@@ -804,7 +726,6 @@ def element_tag(event, window_old):
     global Window, BgColorOverride
     current = event.widget.find_withtag("current")[0]
     window_old.destroy()
-    print(current)
     BgColorOverride = current - 1
     return current
 
@@ -947,7 +868,7 @@ def gui():
     canvas_0.create_image(322, 210, image=search_button_0,
                           anchor='nw', tag='search_button')
     canvas_0.tag_bind('search_button', '<1>', lambda e: show_canvas(canvas_4)
-                      if not validation(tag_field.get('1.0', 'end-1c'), canvas_0) else bad_input_err(err_type=ErrCode, canv=canvas_4))
+                      if not validation(tag_field.get('1.0', 'end-1c')) else bad_input_err(err_type=ErrCode, canv=canvas_4))
 
     with open('assets/config/config_tag.json', 'r') as f:
         config_tag = json.load(f)
