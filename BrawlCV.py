@@ -43,21 +43,22 @@ async def url_fetch(player_tag):
         'https://cr.is-a.dev/v1/brawlers',      # get official
         f'https://brawlstats.com/profile/{player_tag.upper()}'  # get pl
     ]
-    user_json_list = []
+    url_list_purpose = ['user_long', 'official', 'pl']
+    user_json_dict = {}
     async with aiohttp.ClientSession() as session:
         tasks = url_tasks(session, url_list)
         responses = await asyncio.gather(*tasks)
         for v, response in enumerate(responses):
             if v == 2:
-                user_json_list.append(await response.text())
+                user_json_dict[url_list_purpose[v]] = await response.text()
                 continue
-            user_json_list.append(await response.json())
+            user_json_dict[url_list_purpose[v]] = await response.json()
     # =======================================BeautifulSoup get pl start
-    soup = BeautifulSoup(user_json_list[2], 'html.parser')
+    soup = BeautifulSoup(user_json_dict['pl'], 'html.parser')
     temp_ranks = []
     if soup.find('div', {'class': '_230Gh9q1rJmb0YFOn6qXf5'}) is not None:
-        user_json_list.append('500')
-        return user_json_list
+        user_json_dict['pl_error'] = '500 error'
+        return user_json_dict
     for item in soup.find_all('img', {'class': 'DPUFH-EhiGBBrkki4Gsaf'}):
         temp_ranks.append(item['src'])
     challenge_attrs = soup.find_all(
@@ -70,8 +71,8 @@ async def url_fetch(player_tag):
                 ranks.append(int(s))
     ranks.append(challenge_wins)
     # =======================================get pl end
-    user_json_list[2] = ranks
-    return user_json_list
+    user_json_dict['pl'] = ranks
+    return user_json_dict
 
 
 def get_official(code=0):
@@ -100,8 +101,7 @@ def get_official(code=0):
     official_list = [brawler_available, sp_available, gadget_available]
     sp_list = []
     for i in official_json['items']:
-        temp = []
-        temp.append(i['id'])
+        temp = [i['id']]
         for j in range(2):
             try:
                 temp.append(i['starPowers'][j]['id'])
@@ -111,8 +111,7 @@ def get_official(code=0):
         del temp
     gad_list = []
     for i in official_json['items']:
-        temp = []
-        temp.append(i['id'])
+        temp = [i['id']]
         for j in range(2):
             try:
                 temp.append(i['gadgets'][j]['id'])
@@ -178,10 +177,9 @@ def two_pt_tuple(x, y, width, height):
 
 
 def save_image1(bg_override=0, brawler_override=''):
-    bs_font_0 = ImageFont.truetype(TEXT_FONT, 90)
-    bs_font_1 = ImageFont.truetype(TEXT_FONT, 60)
-    bs_font_2 = ImageFont.truetype(TEXT_FONT, 45)
-    bs_font_3 = ImageFont.truetype(TEXT_FONT, 38)
+
+    bs_font_0 = ImageFont.truetype(TEXT_FONT, 45)
+    bs_font_1 = ImageFont.truetype(TEXT_FONT, 38)
     background_img = Image.open(
         f'assets/background/{str(bg_override)}.png').convert('RGBA')
     background_img_0 = background_img.resize(
@@ -194,12 +192,8 @@ def save_image1(bg_override=0, brawler_override=''):
         player_icon = Image.open('assets/player_icon/0.png').convert('RGBA')
     player_icon_0 = player_icon.resize(
         (110, aspect_height(110, player_icon)))
-    #draw_border(draw, 170, 35, '{}'.format(str(GlobalStats['name'])), bs_font_0)
-    #draw.text((170, 35), '{}'.format(str(GlobalStats['name'])), font=bs_font_0)
     background_img_0.paste(place_text(
         GlobalStats['name'], 90), (170, 35 - 90 // 2), place_text(GlobalStats['name'], 90))
-    #draw_border(draw, 170, 165, '{}'.format(str(GlobalStats['club_name'])), bs_font_1)
-    #draw.text((170, 165), '{}'.format(str(GlobalStats['club_name'])), font=bs_font_1)
     background_img_0.paste(place_text(GlobalStats['club_name'], 60), (
         170, 165 - 60 // 2), place_text(GlobalStats['club_name'], 60))
     club_badge = Image.open('assets/club_badge/' +
@@ -210,15 +204,17 @@ def save_image1(bg_override=0, brawler_override=''):
         (1100, aspect_height(1100, stats_table)))
     background_img_0.paste(player_icon_0, (30, 30), player_icon_0)
     background_img_0.paste(club_badge_0, (40, 160), club_badge_0)
+
+    # ========================================Place StatsTable (13 items)
     background_img_0.paste(stats_table_0, (30, 270), stats_table_0)
-    draw_text(draw, 543, 353, str(GlobalStats['trophies']), bs_font_2)
+    draw_text(draw, 543, 353, str(GlobalStats['trophies']), bs_font_0)
     draw_text(draw, 1233, 353, str(
-        GlobalStats['highest_trophies']), bs_font_2)
-    draw_text(draw, 1923, 353, str(GlobalStats['exp_level']), bs_font_2)
-    draw_text(draw, 543, 493, str(GlobalStats['x3v3_victories']), bs_font_2)
+        GlobalStats['highest_trophies']), bs_font_0)
+    draw_text(draw, 1923, 353, str(GlobalStats['exp_level']), bs_font_0)
+    draw_text(draw, 543, 493, str(GlobalStats['x3v3_victories']), bs_font_0)
     draw_text(draw, 1233, 493, str(
-        GlobalStats['solo_victories']), bs_font_2)
-    draw_text(draw, 1923, 493, str(GlobalStats['duo_victories']), bs_font_2)
+        GlobalStats['solo_victories']), bs_font_0)
+    draw_text(draw, 1923, 493, str(GlobalStats['duo_victories']), bs_font_0)
     solo_league = Image.open(
         f'assets/league_icon/ranked_ranks_l_{GlobalRanks[0]}.png').convert('RGBA')
     solo_league_0 = solo_league.resize(
@@ -235,15 +231,17 @@ def save_image1(bg_override=0, brawler_override=''):
     background_img_0.paste(team_league_0, (530, 616), team_league_0)
     background_img_0.paste(club_league_0, (875, 616), club_league_0)
     draw_text(draw, 543, 773,
-              f'{GlobalStats["brawlers_owned"]}/{AvailOfficial[0]}', bs_font_2)
+              f'{GlobalStats["brawlers_owned"]}/{AvailOfficial[0]}', bs_font_0)
     draw_text(draw, 1233, 773,
-              f'{GlobalStats["sp_owned"]}/{AvailOfficial[1]}', bs_font_2)
+              f'{GlobalStats["sp_owned"]}/{AvailOfficial[1]}', bs_font_0)
     draw_text(draw, 1923, 773,
-              f'{GlobalStats["gadgets_owned"]}/{AvailOfficial[2]}', bs_font_2)
-    draw_text(draw, 1233, 913, str(GlobalRanks[3]), bs_font_2)
+              f'{GlobalStats["gadgets_owned"]}/{AvailOfficial[2]}', bs_font_0)
+    draw_text(draw, 1233, 913, str(GlobalRanks[3]), bs_font_0)
     stats_sorted = sort_json(
         GlobalStatsLong['brawlers'], 'highestTrophies', desc=True)
     brawler_override = str(brawler_override)
+
+    # ====================(Unspecified brawler, use brawler with highest PB) Brawler3D, trophies(current & best) , SPs, gadgets
     if brawler_override == '':
         try:
             brawler_3d = Image.open(
@@ -261,6 +259,7 @@ def save_image1(bg_override=0, brawler_override=''):
         stats_htr = stats_sorted[0]['highestTrophies']
         stats_sp = stats_sorted[0]['starPowers']
         stats_gad = stats_sorted[0]['gadgets']
+    # ====================(Specified brawler) Brawler3D, trophies(current & best), SPs, gadgets
     else:
         try:
             brawler_3d = Image.open(
@@ -284,6 +283,7 @@ def save_image1(bg_override=0, brawler_override=''):
         stats_gad = search_json(
             stats_sorted, 'id', brawler_override, 'gadgets')
 
+    # ========================================Place Brawler3D, HighestTrophies
     trophy_container = Image.open(
         'assets/stats/container.png').convert('RGBA')
     trophy_container_0 = trophy_container.resize(
@@ -295,8 +295,10 @@ def save_image1(bg_override=0, brawler_override=''):
         trophy_container_0, (1220, 80), trophy_container_0)
     background_img_0.paste(brawler_rank_0, (1160, 60), brawler_rank_0)
     background_img_0.paste(trophy_0, (1270, 95), trophy_0)
-    draw.text((1320, 95), f'{stats_tr}/{stats_htr}', font=bs_font_3)
+    draw.text((1320, 95), f'{stats_tr}/{stats_htr}', font=bs_font_1)
     slot = []
+
+    # ========================================Place StarPowers, Gadgets
     for i in range(2):
         try:
             slot.append(str(stats_sp[i]['id']))
@@ -370,9 +372,6 @@ def save_image1(bg_override=0, brawler_override=''):
 
 
 def save_image2(bg_override=0):
-    bs_font_0 = ImageFont.truetype(TEXT_FONT, 90)
-    bs_font_1 = ImageFont.truetype(TEXT_FONT, 60)
-    #bs_font_2 = ImageFont.truetype('fonts/LilitaOne-Regular.ttf', 45)
     background_img = Image.open(
         f'assets/background/plain-{str(bg_override)}.png').convert('RGBA')
     background_img_0 = background_img.resize(
@@ -388,12 +387,8 @@ def save_image2(bg_override=0):
     club_badge = Image.open(
         f'assets/club_badge/{GlobalStats["club_badge"]}').convert('RGBA')
     club_badge_0 = club_badge.resize((90, aspect_height(90, club_badge)))
-    #draw_border(draw, 170, 35, '{}'.format(str(GlobalStats['name'])), bs_font_0)
-    #draw.text((170, 35), '{}'.format(str(GlobalStats['name'])), font=bs_font_0)
     background_img_0.paste(place_text(
         GlobalStats['name'], 90), (170, 35 - 90 // 2), place_text(GlobalStats['name'], 90))
-    #draw_border(draw, 170, 165, '{}'.format(str(GlobalStats['club_name'])), bs_font_1)
-    #draw.text((170, 165), '{}'.format(str(GlobalStats['club_name'])), font=bs_font_1)
     background_img_0.paste(place_text(GlobalStats['club_name'], 60), (
         170, 165 - 60 // 2), place_text(GlobalStats['club_name'], 60))
     background_img_0.paste(player_icon_0, (30, 30), player_icon_0)
@@ -420,7 +415,6 @@ def save_image2(bg_override=0):
         if pos < 5:
             draw.rectangle(two_pt_tuple((pos % 5 + 5) * 222 - 193, (pos // 5 + 1) *
                            114 + 37, 212, 104), fill=rank_color, outline='black', width=3)
-            #draw.rectangle(two_pt_tuple((pos % 5 + 4)*250-220, (pos // 5 + 1)*102+57, 242, 95), fill=rank_color, outline='black', width=3)
             background_img_0.paste(brawler_img_0, ((
                 pos % 5 + 5) * 222 - 190, (pos // 5 + 1) * 114 + 40), brawler_img_0)
             background_img_0.paste(brawler_rank_0, ((
@@ -573,13 +567,13 @@ def validation(tag):
 
     # =======================================cr.is-a.dev init
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    user_json_list = asyncio.run(url_fetch(player_tag=tag))
-    GlobalStatsLong = user_json_list[0]
-    GlobalOfficial = user_json_list[1]
-    if len(user_json_list) == 4:
+    user_json_dict = asyncio.run(url_fetch(player_tag=tag))
+    GlobalStatsLong = user_json_dict['user_long']
+    GlobalOfficial = user_json_dict['official']
+    if 'pl_error' in user_json_dict.keys():
         ErrCode = 5000
         return 1
-    GlobalRanks = user_json_list[2]
+    GlobalRanks = user_json_dict['pl']
     # =======================================cr.is-a.dev GlobalStatsLong, GlobalStats, AvailOfficial
     if 'message' in GlobalStatsLong:
         ErrCode = int(GlobalStatsLong['message'][0:3])
@@ -647,11 +641,10 @@ def validation(tag):
     with open('assets/config/config_avail.json', 'w') as f:
         json.dump({'avail': AvailOfficial}, f)
         f.close()
-
     return 0  # not 0 returns True
 
 
-def bad_input_err(err_type=1, canv=None):
+def bad_input_err(err_type=1):
     global Window, ErrCode
     window_new = tk.Toplevel()
     window_new.geometry('400x255+360+360')
@@ -665,10 +658,6 @@ def bad_input_err(err_type=1, canv=None):
     background_img_1 = background_img.resize((400, 255))
     background_img_0 = ImageTk.PhotoImage(background_img_1)
     canvas.create_image(0, 0, image=background_img_0, anchor='nw')
-    gray_button = Image.open('assets/ui/gray_button.png')
-    gray_button_1 = gray_button.resize(
-        (120, aspect_height(120, gray_button)))
-    gray_button_0 = ImageTk.PhotoImage(gray_button_1)
     if err_type == 1:
         window_new.title('Missing player tag')
         canvas.create_text(200, 120, text='Please fill in your player tag.',
@@ -698,26 +687,6 @@ def bad_input_err(err_type=1, canv=None):
         else:
             canvas.create_text(200, 120, text=f'An error occurred. Please try again.\n[Errno {str(err_type-1000)}] at brawlstats.com',
                                fill='#fff', font=('Lilita One Fresh', 18), anchor='center', justify='center')
-    canvas.place(x=0, y=0)
-    window_new.mainloop()
-
-
-def select_color(canv):
-    global Window
-    window_new = tk.Toplevel()
-    window_new.geometry('576x456+200+200')
-    window_new.config(bg='#fff')
-    canvas = tk.Canvas(window_new, width=576, height=456,
-                       bd=0, highlightthickness=0)
-    color_list = []
-    for i in range(6):
-        color_img = Image.open(f'assets/background/{str(i)}.png')
-        color_img1 = color_img.resize((288, 152))
-        color_list.append(ImageTk.PhotoImage(color_img1))
-        canvas.create_image(i % 2 * 288, i // 2 * 152,
-                            image=color_list[i], anchor='nw', tag=f'color{i}')
-        canvas.tag_bind(f'color{i}', '<1>',
-                        lambda e: element_tag(e, window_new))
     canvas.place(x=0, y=0)
     window_new.mainloop()
 
@@ -868,7 +837,7 @@ def gui():
     canvas_0.create_image(322, 210, image=search_button_0,
                           anchor='nw', tag='search_button')
     canvas_0.tag_bind('search_button', '<1>', lambda e: show_canvas(canvas_4)
-                      if not validation(tag_field.get('1.0', 'end-1c')) else bad_input_err(err_type=ErrCode, canv=canvas_4))
+                      if not validation(tag_field.get('1.0', 'end-1c')) else bad_input_err(err_type=ErrCode))
 
     with open('assets/config/config_tag.json', 'r') as f:
         config_tag = json.load(f)
